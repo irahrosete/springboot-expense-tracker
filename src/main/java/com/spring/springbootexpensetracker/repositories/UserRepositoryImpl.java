@@ -11,13 +11,14 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.Objects;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
     private static final String SQL_CREATE = "INSERT INTO ET_USERS(USER_ID, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD) VALUES(NEXTVAL('ET_USERS_SEQ'), ?, ?, ?, ?)";
     private static final String SQL_COUNT_BY_EMAIL = "SELECT COUNT(*) FROM ET_USERS WHERE EMAIL = ?";
-    private static final String SQL_FIND_BY_ID = "SELECT USER_ID, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD FROM ET_USERS WHERE EMAIL = ?";
+    private static final String SQL_FIND_BY_ID = "SELECT USER_ID, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD FROM ET_USERS WHERE USER_ID = ?";
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -34,7 +35,7 @@ public class UserRepositoryImpl implements UserRepository {
                 ps.setString(4, password);
                 return ps;
             }, keyHolder);
-            return (Integer) keyHolder.getKeys().get("USER_ID");
+            return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("USER_ID");
         } catch (Exception e){
             throw new EtAuthException("Invalid details. Failed to create account");
         }
@@ -48,14 +49,16 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Integer getCountByEmail(String email) {
         return jdbcTemplate.queryForObject(SQL_COUNT_BY_EMAIL, new Object[]{email}, Integer.class);
+//        return null;
     }
 
     @Override
     public User findById(Integer userId) {
         return jdbcTemplate.queryForObject(SQL_FIND_BY_ID, new Object[]{userId}, userRowMapper);
+//        return null;
     }
 
-    private RowMapper<User> userRowMapper = ((rs, rowNum) -> {
+    private final RowMapper<User> userRowMapper = ((rs, rowNum) -> {
         return new User(rs.getInt("USER_ID"),
                 rs.getString("FIRST_NAME"),
                 rs.getString("LAST_NAME"),
