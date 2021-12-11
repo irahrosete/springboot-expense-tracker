@@ -29,9 +29,9 @@ public class UserResource {
         String email = (String) userMap.get("email");
         String password = (String) userMap.get("password");
         User user = userService.validateUser(email, password);
-        Map<String, String> map = new HashMap<>();
-        map.put("message", "login successfully");
-        return new ResponseEntity<>(map, HttpStatus.OK);
+//        Map<String, String> map = new HashMap<>();
+//        map.put("message", "login successfully");
+        return new ResponseEntity<>(generateJWTToken(user), HttpStatus.OK);
     }
 
 
@@ -42,9 +42,9 @@ public class UserResource {
         String email = (String) userMap.get("email");
         String password = (String) userMap.get("password");
         User user = userService.registerUser(firstName, lastName, email, password);
-        Map<String, String> map = new HashMap<>();
-        map.put("message", "registered successfully");
-        return new ResponseEntity<>(map, HttpStatus.OK);
+//        Map<String, String> map = new HashMap<>();
+//        map.put("message", "registered successfully");
+        return new ResponseEntity<>(generateJWTToken(user), HttpStatus.OK);
     }
 
     private Map<String, String> generateJWTToken(User user) {
